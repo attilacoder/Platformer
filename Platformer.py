@@ -18,6 +18,10 @@ moving_left = False
 vertical_momentum = 0
 air_timer = 0
 
+true_scroll = [0,0]
+jumps = 2
+
+
 def load_map(path):
     f = open(path + '.txt','r')
     data = f.read()
@@ -28,13 +32,16 @@ def load_map(path):
         game_map.append(list(row))
     return game_map
 
+game_map = load_map('map')
+
 grass_img = pygame.image.load('grass.png')
 dirt_img = pygame.image.load('dirt.png')
 
 player_img = pygame.image.load('player.png').convert()
 player_img.set_colorkey((255,255,255))
 
-player_rect = pygame.Rect(100,100,16,16)
+player_rect = pygame.Rect(100,100,16,16 )
+
 
 def collision_test(rect,tiles):
     hit_list = []
@@ -68,15 +75,22 @@ def move(rect,movement,tiles):
 while True: # game loop
     display.fill((146,244,255)) # clear screen by filling it with blue
 
+    true_scroll[0] += (player_rect.x-true_scroll[0]-152)/20
+    true_scroll[1] += (player_rect.y-true_scroll[1]-106)/20
+    scroll = true_scroll.copy()
+    scroll[0] = int(scroll[0])
+    scroll[1] = int(scroll[1])
+
+
     tile_rects = []
     y = 0
-    for layer in load_map('map'):
+    for layer in game_map:
         x = 0
         for tile in layer:
             if tile == '1':
-                display.blit(dirt_img,(x*16,y*16))
+                display.blit(dirt_img,(x*16-scroll[0],y*16-scroll[1]))
             if tile == '2':
-                display.blit(grass_img,(x*16,y*16))
+                display.blit(grass_img,(x*16-scroll[0],y*16-scroll[1]))
             if tile != '0':
                 tile_rects.append(pygame.Rect(x*16,y*16,16,16))
             x += 1
@@ -89,18 +103,19 @@ while True: # game loop
         player_movement[0] -= 2
     player_movement[1] += vertical_momentum
     vertical_momentum += 0.2
-    if vertical_momentum > 3:
-        vertical_momentum = 3
+    if vertical_momentum > 6 and jumps > 0:
+        vertical_momentum = 6
 
     player_rect,collisions = move(player_rect,player_movement,tile_rects)
 
     if collisions['bottom'] == True:
         air_timer = 0
         vertical_momentum = 0
+        jumps = 2
     else:
         air_timer += 1
 
-    display.blit(player_img,(player_rect.x,player_rect.y))
+    display.blit(player_img,(player_rect.x-scroll[0],player_rect.y-scroll[1]))
 
 
     for event in pygame.event.get(): # event loop
@@ -110,6 +125,7 @@ while True: # game loop
         if event.type == KEYDOWN:
             if event.key == K_d:
                 moving_right = True
+                jumps -= 1
             if event.key == K_a:
                 moving_left = True
             if event.key == K_w:
