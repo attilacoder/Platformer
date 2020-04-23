@@ -36,6 +36,7 @@ game_map = load_map('map')
 
 grass_img = pygame.image.load('grass.png')
 dirt_img = pygame.image.load('dirt.png')
+cloud_img = pygame.image.load('cloud.png')
 
 player_img = pygame.image.load('player.png').convert()
 player_img.set_colorkey((255,255,255))
@@ -91,6 +92,8 @@ while True: # game loop
                 display.blit(dirt_img,(x*16-scroll[0],y*16-scroll[1]))
             if tile == '2':
                 display.blit(grass_img,(x*16-scroll[0],y*16-scroll[1]))
+            if tile == '3':
+                display.blit(cloud_img,(x*16-scroll[0],y*16-scroll[1]))
             if tile != '0':
                 tile_rects.append(pygame.Rect(x*16,y*16,16,16))
             x += 1
