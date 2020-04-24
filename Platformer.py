@@ -1,145 +1,68 @@
-import pygame, sys
+import pygame
+import sys
+import time
+from pygame import *
 
-clock = pygame.time.Clock()
+pygame.init()
 
-from pygame.locals import *
-pygame.init() # initiates pygame
-
-pygame.display.set_caption('Pygame Platformer')
-
-WINDOW_SIZE = (600,400)
-
-screen = pygame.display.set_mode(WINDOW_SIZE,0,32) # initiate the window
-
-display = pygame.Surface((300,200)) # used as the surface for rendering, which is scaled
-
-moving_right = False
-moving_left = False
-vertical_momentum = 0
-air_timer = 0
-
-true_scroll = [0,0]
-jumps = 2
+c = pygame.time.Clock()
 
 
-def load_map(path):
-    f = open(path + '.txt','r')
-    data = f.read()
-    f.close()
-    data = data.split('\n')
-    game_map = []
-    for row in data:
-        game_map.append(list(row))
-    return game_map
+w_size = [500,350]
 
-game_map = load_map('map')
+sky = (130, 178, 255)
+w = pygame.display.set_mode(w_size)
+w.fill(sky)
 
-grass_img = pygame.image.load('grass.png')
-dirt_img = pygame.image.load('dirt.png')
-cloud_img = pygame.image.load('cloud.png')
+right = False
+left = False
 
-player_img = pygame.image.load('player.png').convert()
-player_img.set_colorkey((255,255,255))
-
-player_rect = pygame.Rect(100,100,16,16 )
+p_pos = [50,50]
+x_speed = 4
+y_speed = -20
 
 
-def collision_test(rect,tiles):
-    hit_list = []
-    for tile in tiles:
-        if rect.colliderect(tile):
-            hit_list.append(tile)
-    return hit_list
+p_img = pygame.image.load('player.png')
+grass = pygame.image.load('grass.png')
+dirt =  pygame.image.load('dirt.png')
+cloud = pygame.image.load('cloud.png')
 
-def move(rect,movement,tiles):
-    collision_types = {'top':False,'bottom':False,'right':False,'left':False}
-    rect.x += movement[0]
-    hit_list = collision_test(rect,tiles)
-    for tile in hit_list:
-        if movement[0] > 0:
-            rect.right = tile.left
-            collision_types['right'] = True
-        elif movement[0] < 0:
-            rect.left = tile.right
-            collision_types['left'] = True
-    rect.y += movement[1]
-    hit_list = collision_test(rect,tiles)
-    for tile in hit_list:
-        if movement[1] > 0:
-            rect.bottom = tile.top
-            collision_types['bottom'] = True
-        elif movement[1] < 0:
-            rect.top = tile.bottom
-            collision_types['top'] = True
-    return rect, collision_types
-
-while True: # game loop
-    display.fill((146,244,255)) # clear screen by filling it with blue
-
-    true_scroll[0] += (player_rect.x-true_scroll[0]-152)/20
-    true_scroll[1] += (player_rect.y-true_scroll[1]-106)/20
-    scroll = true_scroll.copy()
-    scroll[0] = int(scroll[0])
-    scroll[1] = int(scroll[1])
+playing = True
+while playing:
+    w.fill(sky)
 
 
-    tile_rects = []
-    y = 0
-    for layer in game_map:
-        x = 0
-        for tile in layer:
-            if tile == '1':
-                display.blit(dirt_img,(x*16-scroll[0],y*16-scroll[1]))
-            if tile == '2':
-                display.blit(grass_img,(x*16-scroll[0],y*16-scroll[1]))
-            if tile == '3':
-                display.blit(cloud_img,(x*16-scroll[0],y*16-scroll[1]))
-            if tile != '0':
-                tile_rects.append(pygame.Rect(x*16,y*16,16,16))
-            x += 1
-        y += 1
 
-    player_movement = [0,0]
-    if moving_right == True:
-        player_movement[0] += 2
-    if moving_left == True:
-        player_movement[0] -= 2
-    player_movement[1] += vertical_momentum
-    vertical_momentum += 0.2
-    if vertical_momentum > 6 and jumps > 0:
-        vertical_momentum = 6
-
-    player_rect,collisions = move(player_rect,player_movement,tile_rects)
-
-    if collisions['bottom'] == True:
-        air_timer = 0
-        vertical_momentum = 0
-        jumps = 2
-    else:
-        air_timer += 1
-
-    display.blit(player_img,(player_rect.x-scroll[0],player_rect.y-scroll[1]))
-
-
-    for event in pygame.event.get(): # event loop
-        if event.type == QUIT:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            playing = False
             pygame.quit()
-            sys.exit()
-        if event.type == KEYDOWN:
-            if event.key == K_d:
-                moving_right = True
-                jumps -= 1
-            if event.key == K_a:
-                moving_left = True
-            if event.key == K_w:
-                if air_timer < 6:
-                    vertical_momentum = -5
-        if event.type == KEYUP:
-            if event.key == K_d:
-                moving_right = False
-            if event.key == K_a:
-                moving_left = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_d:
+                right = True
+            if event.key == pygame.K_a:
+                left = True
+            if event.key == pygame.K_SPACE
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_d:
+                right = False
+            if event.key == pygame.K_a:
+                left = False
 
-    screen.blit(pygame.transform.scale(display,WINDOW_SIZE),(0,0))
+
+
+    if right:
+        p_pos[0] += x_speed
+    if left:
+        p_pos[0] -= x_speed
+
+
+
+    w.blit(p_img, p_pos)
+
+
+
+
+
     pygame.display.update()
-    clock.tick(60)
+    c.tick(60)
