@@ -19,7 +19,9 @@ left = False
 
 p_pos = [50,50]
 x_speed = 4
-y_speed = -20
+y_speed = 0
+y_acc = 0.4
+y_max = 6
 
 
 p_img = pygame.image.load('player.png')
@@ -42,7 +44,9 @@ while playing:
                 right = True
             if event.key == pygame.K_a:
                 left = True
-            if event.key == pygame.K_SPACE
+            if event.key == pygame.K_SPACE:
+                if y_speed > -y_acc:
+                    y_speed = y_acc
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_d:
                 right = False
