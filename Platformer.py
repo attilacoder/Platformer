@@ -23,6 +23,7 @@ y_speed = 6
 y_acc = 0
 y_max = 6
 jumping = False
+air_timer = 0
 
 p_rect = pygame.Rect(p_pos[0],p_pos[1],16,16)
 p_img = pygame.image.load('player.png')
@@ -30,8 +31,17 @@ grass = pygame.image.load('grass.png')
 dirt =  pygame.image.load('dirt.png')
 cloud = pygame.image.load('cloud.png')
 
+
+font = pygame.font.SysFont("Arial", 18)
+
+
+def update_fps():
+	fps = str(int(c.get_fps()))
+	fps_text = font.render(fps, 1, pygame.Color("coral"))
+	return fps_text
 playing = True
 while playing:
+    w.blit(update_fps(), (10,0))
     w.fill(sky)
     p_rect.x, p_rect.y = p_pos[0], p_pos[1]
 
@@ -53,9 +63,10 @@ while playing:
             if event.key == pygame.K_a:
                 left = False
     if p_pos[1] > w_size[1]-p_img.get_height():
-        y_acc = -y_acc
+        air_timer = 0
+        y_acc = 0
     else:
-        y_acc += 0.2
+        airtimer += 1
     p_pos[1] += y_acc
     if jumping:
         y_speed -= y_acc
